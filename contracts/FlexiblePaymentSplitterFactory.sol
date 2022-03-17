@@ -9,11 +9,11 @@ contract FlexiblePaymentSplitterFactory {
         address owner,
         string description
     );
-    FlexiblePaymentSplitter[] deployedChildren;
+    FlexiblePaymentSplitter[] public deployedChildren;
 
     constructor() {}
 
-    function create(
+    function deployChild(
         address[] memory payees,
         uint256[] memory shares_,
         string memory description

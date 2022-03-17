@@ -172,16 +172,12 @@ contract FlexiblePaymentSplitter is Context, Ownable {
             released(account)
         );
 
-        require(
-            payment != 0,
-            "FlexiblePaymentSplitter: account is not due payment"
-        );
-
-        _released[account] += payment;
-        _totalReleased += payment;
-
-        Address.sendValue(account, payment);
-        emit PaymentReleased(account, payment);
+        if (payment > 0) {
+            _released[account] += payment;
+            _totalReleased += payment;
+            Address.sendValue(account, payment);
+            emit PaymentReleased(account, payment);
+        }
     }
 
     /**
@@ -203,16 +199,13 @@ contract FlexiblePaymentSplitter is Context, Ownable {
             released(token, account)
         );
 
-        require(
-            payment != 0,
-            "FlexiblePaymentSplitter: account is not due payment"
-        );
+        if (payment > 0) {
+            _erc20Released[token][account] += payment;
+            _erc20TotalReleased[token] += payment;
 
-        _erc20Released[token][account] += payment;
-        _erc20TotalReleased[token] += payment;
-
-        SafeERC20.safeTransfer(token, account, payment);
-        emit ERC20PaymentReleased(token, account, payment);
+            SafeERC20.safeTransfer(token, account, payment);
+            emit ERC20PaymentReleased(token, account, payment);
+        }
     }
 
     /**
