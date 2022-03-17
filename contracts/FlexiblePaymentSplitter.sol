@@ -45,6 +45,7 @@ contract FlexiblePaymentSplitter is Context, Ownable {
     mapping(address => uint256) private _shares;
     mapping(address => uint256) private _released;
     address[] private _payees;
+    uint256 public numCurrentPayees;
     bool _ethPaymentsBlocked;
     mapping(IERC20 => uint256) private _erc20TotalReleased;
     mapping(IERC20 => mapping(address => uint256)) private _erc20Released;
@@ -237,6 +238,7 @@ contract FlexiblePaymentSplitter is Context, Ownable {
             "FlexiblePaymentSplitter: account already has shares"
         );
 
+        numCurrentPayees += 1;
         _payees.push(account);
         _shares[account] = shares_;
         _totalShares = _totalShares + shares_;
@@ -260,11 +262,21 @@ contract FlexiblePaymentSplitter is Context, Ownable {
                 break;
             }
         }
-        delete _payees[target];
+        numCurrentPayees -= 1;
+        _popPayeeFromArray(target);
         uint256 oldShares = _shares[account];
         _shares[account] = 0;
         _totalShares = _totalShares - oldShares;
         emit PayeeDeleted(account);
+    }
+
+    /**
+     * swap+pop since order is not important for us
+     */
+    function _popPayeeFromArray(uint256 idx) private {
+        require(idx < _payees.length);
+        _payees[idx] = _payees[_payees.length - 1];
+        _payees.pop();
     }
 
     /**
