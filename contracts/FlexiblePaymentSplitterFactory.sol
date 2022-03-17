@@ -11,7 +11,7 @@ contract FlexiblePaymentSplitterFactory {
     );
     FlexiblePaymentSplitter[] deployedChildren;
 
-    constructor() public {}
+    constructor() {}
 
     function create(
         address[] memory payees,
