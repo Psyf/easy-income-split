@@ -9,7 +9,9 @@ contract FlexiblePaymentSplitterFactory {
         address owner,
         string description
     );
+    uint256 numDeployedChildren;
     FlexiblePaymentSplitter[] public deployedChildren;
+    mapping(address => address) ownerToChildren;
 
     constructor() {}
 
@@ -25,6 +27,8 @@ contract FlexiblePaymentSplitterFactory {
             msg.sender // otherwise the smart contract will be the owner
         );
         deployedChildren.push(newIncomeSplit);
+        numDeployedChildren += 1;
+        ownerToChildren[msg.sender] = address(newIncomeSplit);
         emit ContractCreated(address(newIncomeSplit), msg.sender, description);
     }
 }
