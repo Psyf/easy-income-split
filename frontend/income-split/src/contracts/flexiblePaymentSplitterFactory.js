@@ -1,4 +1,4 @@
-export const address = "0xe429fA9498060cb095A7EDa2490A3755C09b6EF8";
+export const address = "0x5F910ba1eac70494e42719F4C05a49C586ab6218";
 
 export const abi = [
   {
@@ -43,6 +43,40 @@ export const abi = [
     outputs: [
       {
         internalType: "contract FlexiblePaymentSplitter",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+    constant: true,
+  },
+  {
+    inputs: [],
+    name: "numDeployedChildren",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+    constant: true,
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "ownerToChildren",
+    outputs: [
+      {
+        internalType: "address",
         name: "",
         type: "address",
       },
