@@ -6,12 +6,13 @@ import "./FlexiblePaymentSplitter.sol";
 contract FlexiblePaymentSplitterFactory {
     event ContractCreated(
         address contractAddr,
-        address owner,
+        address indexed owner,
         string description
     );
-    uint256 numDeployedChildren;
+    uint256 public numDeployedChildren;
     FlexiblePaymentSplitter[] public deployedChildren;
-    mapping(address => address) ownerToChildren;
+    mapping(address => address[]) public creatorToChildren;
+    mapping(address => uint256) public creatorToChildrenNum;
 
     constructor() {}
 
@@ -28,7 +29,8 @@ contract FlexiblePaymentSplitterFactory {
         );
         deployedChildren.push(newIncomeSplit);
         numDeployedChildren += 1;
-        ownerToChildren[msg.sender] = address(newIncomeSplit);
+        creatorToChildren[msg.sender].push(address(newIncomeSplit));
+        creatorToChildrenNum[msg.sender]++;
         emit ContractCreated(address(newIncomeSplit), msg.sender, description);
     }
 }
