@@ -5,8 +5,8 @@ import "./FlexiblePaymentSplitter.sol";
 
 contract FlexiblePaymentSplitterFactory {
     event ContractCreated(
-        address contractAddr,
         address indexed owner,
+        address contractAddr,
         string description
     );
     uint256 public numDeployedChildren;
@@ -31,6 +31,6 @@ contract FlexiblePaymentSplitterFactory {
         numDeployedChildren += 1;
         creatorToChildren[msg.sender].push(address(newIncomeSplit));
         creatorToChildrenNum[msg.sender]++;
-        emit ContractCreated(address(newIncomeSplit), msg.sender, description);
+        emit ContractCreated(msg.sender, address(newIncomeSplit), description);
     }
 }
