@@ -1,13 +1,15 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import "reactjs-popup/dist/index.css";
+import CurrentContractModal from "./CurrentContractModal";
 
-// TODO: This seems to be very inefficient, judging by the commented out console.log calls
+// TODO: This seems to be very inefficient
 function DeployedContracts(props) {
   const [createdContracts, setContracts] = useState(new Set());
+  const [selectedContract, setSelectedContract] = useState();
   const walletAddress = props.walletAddress;
   const factoryContract = props.factoryContract;
 
   async function getContractsCreatedByWallet() {
-    //console.log("getContractsCreatedByWallet", createdContracts);
     if (walletAddress && factoryContract) {
       var numCreatedContracts = await factoryContract.creatorToChildrenNum(
         walletAddress
@@ -25,10 +27,8 @@ function DeployedContracts(props) {
 
   function setFactoryContractListener() {
     if (factoryContract && walletAddress) {
-      //console.log("setFactoryContractListener", createdContracts);
       var filter = factoryContract.filters.ContractCreated(walletAddress);
       factoryContract.on(filter, (owner, contractAddr, desc, e) => {
-        console.log("found it", owner, contractAddr, e);
         //TIL: for some reason if you don't use the callback form it gets into a race condition and thinks createContracts is empty
         setContracts(
           (createdContracts) => new Set(createdContracts.add(contractAddr))
@@ -38,7 +38,6 @@ function DeployedContracts(props) {
   }
 
   function displayContracts() {
-    //console.log("display", createdContracts);
     const oldList = document.getElementById("deployed_contracts_list");
     oldList.remove();
     const listDiv = document.getElementById("deployed_contracts");
@@ -46,9 +45,13 @@ function DeployedContracts(props) {
     list.id = "deployed_contracts_list";
     list.className = "collection";
     listDiv.appendChild(list);
+
     createdContracts.forEach((item) => {
       let li = document.createElement("button");
       li.innerText = item;
+      li.onclick = function () {
+        setSelectedContract(item);
+      };
       li.className = "waves-effect waves-light btn";
       list.appendChild(li);
     });
@@ -65,9 +68,12 @@ function DeployedContracts(props) {
   }, [createdContracts]);
 
   return (
-    <div id="deployed_contracts" className="container">
-      <h4>Your Contracts</h4>
-      <div id="deployed_contracts_list" className="collection"></div>
+    <div>
+      <div id="deployed_contracts" className="container">
+        <h4>Your Contracts</h4>
+        <div id="deployed_contracts_list" className="collection"></div>
+      </div>
+      <CurrentContractModal currentContract={selectedContract} />
     </div>
   );
 }
