@@ -18,13 +18,17 @@ function DeployedContracts(props) {
         fetchedContracts.add(item);
       }
       setContracts(fetchedContracts);
+    } else {
+      setContracts(new Set());
     }
   }
 
   function setFactoryContractListener() {
-    if (factoryContract) {
+    if (factoryContract && walletAddress) {
       //console.log("setFactoryContractListener", createdContracts);
-      factoryContract.on("ContractCreated", (contractAddr, owner, desc, e) => {
+      var filter = factoryContract.filters.ContractCreated(walletAddress);
+      factoryContract.on(filter, (owner, contractAddr, desc, e) => {
+        console.log("found it", owner, contractAddr, e);
         //TIL: for some reason if you don't use the callback form it gets into a race condition and thinks createContracts is empty
         setContracts(
           (createdContracts) => new Set(createdContracts.add(contractAddr))
@@ -40,10 +44,12 @@ function DeployedContracts(props) {
     const listDiv = document.getElementById("deployed_contracts");
     let list = document.createElement("list");
     list.id = "deployed_contracts_list";
+    list.className = "collection";
     listDiv.appendChild(list);
     createdContracts.forEach((item) => {
-      let li = document.createElement("li");
+      let li = document.createElement("button");
       li.innerText = item;
+      li.className = "waves-effect waves-light btn";
       list.appendChild(li);
     });
   }
@@ -59,9 +65,9 @@ function DeployedContracts(props) {
   }, [createdContracts]);
 
   return (
-    <div id="deployed_contracts">
+    <div id="deployed_contracts" className="container">
       <h4>Your Contracts</h4>
-      <li id="deployed_contracts_list"></li>
+      <div id="deployed_contracts_list" className="collection"></div>
     </div>
   );
 }

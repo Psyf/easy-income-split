@@ -30,7 +30,7 @@ function App() {
         href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
       ></link>
       <header>
-        <h1>IncomeSplitter</h1>
+        <h2 className="center">IncomeSplitter</h2>
         <Wallet wallet={walletAddress} setWalletCallback={setWallet} />
         <DeployedContracts
           factoryContract={factoryContract}

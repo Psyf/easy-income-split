@@ -10,15 +10,15 @@ export const abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
-        internalType: "address",
-        name: "contractAddr",
-        type: "address",
-      },
-      {
         indexed: true,
         internalType: "address",
         name: "owner",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "contractAddr",
         type: "address",
       },
       {

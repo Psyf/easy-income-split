@@ -49,34 +49,43 @@ function FactoryForm(props) {
     }
   };
   return (
-    <div>
+    <div className="container row">
       <h4>Create New Contract</h4>
       <form onSubmit={deployContract}>
-        <label htmlFor="description">Title</label>
-        <input
-          type="text"
-          id="description"
-          name="Title"
-          placeholder="TeamName"
-          defaultValue="jezer0x" //remove
-        />
-        <label htmlFor="addresses">Addresses (comma separeted):</label>
-        <input
-          type="text"
-          id="addresses"
-          name="addresses"
-          placeholder="0x1, 0x2, 0x3"
-          defaultValue="0x32927Ad8d0D5d6E4039CC23715FF83edBD04DFd0, 0xD39EaA072A272aBdBa849Bef6582BBFC3819b03d" //remove
-        />
-        <label htmlFor="shares">Shares (comma separeted):</label>
-        <input
-          type="text"
-          id="shares"
-          name="shares"
-          placeholder="25, 25, 50"
-          defaultValue="10, 10" //remove
-        />
-        <input type="submit" value="Submit" />
+        <div>
+          <div>
+            <input
+              type="text"
+              id="description"
+              placeholder="TeamName"
+              defaultValue="jezer0x"
+            />
+            <label htmlFor="description">Title</label>
+          </div>
+          <div>
+            <input
+              type="text"
+              id="addresses"
+              placeholder="0x1, 0x2, 0x3"
+              defaultValue="0x32927Ad8d0D5d6E4039CC23715FF83edBD04DFd0, 0xD39EaA072A272aBdBa849Bef6582BBFC3819b03d" //remove
+            />
+            <label htmlFor="addresses">Addresses</label>
+          </div>
+          <div>
+            <input
+              type="text"
+              id="shares"
+              placeholder="25, 25, 50"
+              defaultValue="10, 10" //remove
+            />
+            <label htmlFor="shares">Shares</label>
+          </div>
+          <input
+            type="submit"
+            value="Create"
+            className="waves-effect waves-light btn"
+          />
+        </div>
       </form>
     </div>
   );

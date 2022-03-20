@@ -30,7 +30,7 @@ function Wallet(props) {
   }, []);
 
   return (
-    <div className="btn-wrapper">
+    <div className="btn-wrapper right">
       <button
         id="connect_wallet_button"
         type="button"
@@ -38,10 +38,9 @@ function Wallet(props) {
         onClick={connectWalletHandler}
       >
         {walletAddress ? (
-          "Connected: " +
-          String(walletAddress).substring(0, 6) +
+          String(walletAddress).substring(0, 8) +
           "..." +
-          String(walletAddress).substring(38)
+          String(walletAddress).substring(36)
         ) : (
           <span>Connect Wallet</span>
         )}
