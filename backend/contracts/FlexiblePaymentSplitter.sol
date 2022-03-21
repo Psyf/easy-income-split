@@ -28,6 +28,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * to run tests before sending real value to this contract.
  */
 contract FlexiblePaymentSplitter is Context, Ownable {
+    struct Set {
+        IERC20[] values;
+        mapping(IERC20 => bool) is_in;
+    }
+
     event PayeeAdded(address account, uint256 shares);
     event PayeeDeleted(address account);
     event PaymentReleased(address to, uint256 amount);
@@ -49,6 +54,7 @@ contract FlexiblePaymentSplitter is Context, Ownable {
     bool _ethPaymentsBlocked;
     mapping(IERC20 => uint256) private _erc20TotalReleased;
     mapping(IERC20 => mapping(address => uint256)) private _erc20Released;
+    Set _erc20seen;
 
     /**
      * @dev Creates an instance of `FlexiblePaymentSplitter` where each account in `payees` is assigned the number of shares at
@@ -92,6 +98,49 @@ contract FlexiblePaymentSplitter is Context, Ownable {
             "Eth payments have been blocked! Check whether address in use before sending anything (ERC20s included!)"
         );
         emit PaymentReceived(_msgSender(), msg.value);
+    }
+
+    /**
+        When a Payee is added / deleted, we need to reset _released to ensure that the remaining people get their share of the balance
+        Otherwise, their percentage of shares + whether they released earlier or not gets in the way of calcluations and makes it erroneous
+        
+        If you'd rather people get their share of the money even after they are kicked, we need a more complex system 
+        where we keep track of received/released per token 
+
+        This is possible in theory, just start a new "epoch" or released/received map everytime someone gets added/kicked. 
+
+        However, this smart contract was made with the understanding that if someone gets kicked by the owner address, they forfeit whatever they have not released. 
+
+        If you want to keep a historical record of payments in/out, you should look at the Events emitted - perhaps by using something like The Graph?
+
+        Even though the "released" terminology is probably not the best, we keep it since it's based on PaymentSplitter
+
+        Cost: The more tokens you use and the more payees you have, the more the opCost of adding/deleting/changing shares.
+     */
+    function _flushReleased() private {
+        for (uint256 i = 0; i < numCurrentPayees; i++) {
+            address payee_ = payee(i);
+            _released[payee_] = 0;
+        }
+        _totalReleased = 0;
+    }
+
+    function _flushErc20Released() private {
+        for (uint256 h = 0; h < _erc20seen.values.length; h++) {
+            IERC20 token = _erc20seen.values[h];
+            for (uint256 i = 0; i < numCurrentPayees; i++) {
+                address payee_ = payee(i);
+                _erc20Released[token][payee_] = 0;
+            }
+            _erc20TotalReleased[token] = 0;
+        }
+    }
+
+    function _addErc20seen(IERC20 token) private {
+        if (!_erc20seen.is_in[token]) {
+            _erc20seen.values.push(token);
+            _erc20seen.is_in[token] = true;
+        }
     }
 
     /**
@@ -201,6 +250,7 @@ contract FlexiblePaymentSplitter is Context, Ownable {
         );
 
         if (payment > 0) {
+            _addErc20seen(token);
             _erc20Released[token][account] += payment;
             _erc20TotalReleased[token] += payment;
 
@@ -242,6 +292,8 @@ contract FlexiblePaymentSplitter is Context, Ownable {
         _payees.push(account);
         _shares[account] = shares_;
         _totalShares = _totalShares + shares_;
+        _flushReleased();
+        _flushErc20Released();
         emit PayeeAdded(account, shares_);
     }
 
@@ -267,6 +319,8 @@ contract FlexiblePaymentSplitter is Context, Ownable {
         uint256 oldShares = _shares[account];
         _shares[account] = 0;
         _totalShares = _totalShares - oldShares;
+        _flushReleased();
+        _flushErc20Released();
         emit PayeeDeleted(account);
     }
 
