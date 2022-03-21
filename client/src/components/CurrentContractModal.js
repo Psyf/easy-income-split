@@ -101,16 +101,20 @@ function CurrentContractModal(props) {
       event.preventDefault();
       var token =
         event.target.token.length > 0 ? event.target.token.value : null;
-      if (token != null) await currentContract.release(token, address);
-      else await currentContract.release(address);
+      if (token != null)
+        await currentContract["release(address,address)"](token, address);
+      else await currentContract["release(address)"](address);
     }
   }
 
   async function releaseAll(event) {
     event.preventDefault();
     var token = event.target.token.length > 0 ? event.target.token.value : null;
-    if (token != null) await currentContract.releaseAll(token);
-    else await currentContract.releaseAll();
+    if (token != null) {
+      await currentContract["releaseAll(address)"](token);
+    } else {
+      await currentContract["releaseAll()"]();
+    }
   }
 
   async function blockEthPayments(event) {
@@ -255,7 +259,7 @@ function CurrentContractModal(props) {
             AddPayee
           </Button>
         </Box>
-        <Box component="form" noValidate onSubmit={addPayee}>
+        <Box component="form" noValidate onSubmit={changeShares}>
           <TextField
             type="text"
             id="address"
