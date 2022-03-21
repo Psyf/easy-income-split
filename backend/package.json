@@ -2,7 +2,10 @@
   "dependencies": {
     "@material-ui/core": "^4.12.3",
     "@openzeppelin/contracts": "^4.5.0",
+    "@truffle/hdwallet-provider": "^2.0.4",
+    "ethers": "^5.6.1",
     "material-ui": "^0.20.2",
-    "truffle-hdwallet-provider": "^1.0.17"
+    "web3": "^1.7.1",
+    "web3-eth-abi": "^1.7.1"
   }
 }

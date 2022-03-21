@@ -49,7 +49,10 @@ function DeployedContracts(props) {
     createdContracts.forEach((item) => {
       let li = document.createElement("button");
       li.innerText = item;
-      li.onclick = function () {
+      li.onclick = () => {
+        // Need to do this, otherwise selectedContract won't "change"
+        // if you want to open the same modal after closing it
+        setSelectedContract(null);
         setSelectedContract(item);
       };
       li.className = "waves-effect waves-light btn";

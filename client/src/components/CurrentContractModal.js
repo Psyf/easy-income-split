@@ -1,12 +1,18 @@
+import { useState, useEffect } from "react";
 import ReactModal from "react-modal";
 
 ReactModal.setAppElement("#root");
 
 function CurrentContractModal(props) {
-  const currentContract = props.currentContract;
+  const [currentContract, setCurrentContract] = useState();
+
+  useEffect(() => {
+    setCurrentContract(props.currentContract);
+  }, [props]);
+
   return (
     <ReactModal isOpen={currentContract != null}>
-      <p>currentContract</p>
+      <button onClick={() => setCurrentContract(null)}>clearContract</button>
     </ReactModal>
   );
 }
