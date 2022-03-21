@@ -271,15 +271,6 @@ contract FlexiblePaymentSplitter is Context, Ownable {
     }
 
     /**
-     * swap+pop since order is not important for us
-     */
-    function _popPayeeFromArray(uint256 idx) private {
-        require(idx < _payees.length);
-        _payees[idx] = _payees[_payees.length - 1];
-        _payees.pop();
-    }
-
-    /**
      * All existing funds are shared according to new_shares too!
      */
     function changeShares(address account, uint256 new_shares)
@@ -288,6 +279,19 @@ contract FlexiblePaymentSplitter is Context, Ownable {
     {
         deletePayee(account);
         _addPayee(account, new_shares);
+    }
+
+    function addPayee(address account, uint256 shares_) public onlyOwner {
+        _addPayee(account, shares_);
+    }
+
+    /**
+     * swap+pop since order is not important for us
+     */
+    function _popPayeeFromArray(uint256 idx) private {
+        require(idx < _payees.length);
+        _payees[idx] = _payees[_payees.length - 1];
+        _payees.pop();
     }
 
     /**
