@@ -38,7 +38,7 @@ function DeployedContracts(props) {
     }
   }
 
-  function displayContracts() {
+  function getContractsToDisplay() {
     if (createdContracts) {
       var buttonList = [];
       createdContracts.forEach((item) => {
@@ -73,10 +73,13 @@ function DeployedContracts(props) {
           aria-label="outlined primary button group"
           id="deployed_contracts_list"
         >
-          {displayContracts()}
+          {getContractsToDisplay()}
         </ButtonGroup>
       </Container>
-      <CurrentContractModal currentContractAddress={selectedContract} />
+      <CurrentContractModal
+        currentContractAddress={selectedContract}
+        walletAddress={walletAddress}
+      />
     </div>
   );
 }
