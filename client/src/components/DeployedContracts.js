@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "reactjs-popup/dist/index.css";
 import CurrentContractModal from "./CurrentContractModal";
+import { ButtonGroup, Button, Container } from "@mui/material";
 
 // TODO: This seems to be very inefficient
 function DeployedContracts(props) {
@@ -38,26 +39,23 @@ function DeployedContracts(props) {
   }
 
   function displayContracts() {
-    const oldList = document.getElementById("deployed_contracts_list");
-    oldList.remove();
-    const listDiv = document.getElementById("deployed_contracts");
-    let list = document.createElement("list");
-    list.id = "deployed_contracts_list";
-    list.className = "collection";
-    listDiv.appendChild(list);
-
-    createdContracts.forEach((item) => {
-      let li = document.createElement("button");
-      li.innerText = item;
-      li.onclick = () => {
-        // Need to do this, otherwise selectedContract won't "change"
-        // if you want to open the same modal after closing it
-        setSelectedContract(null);
-        setSelectedContract(item);
-      };
-      li.className = "waves-effect waves-light btn";
-      list.appendChild(li);
-    });
+    if (createdContracts) {
+      var buttonList = [];
+      createdContracts.forEach((item) => {
+        var button = (
+          <Button
+            onClick={() => {
+              setSelectedContract(item);
+            }}
+            key={item}
+          >
+            {item}
+          </Button>
+        );
+        buttonList.push(button);
+      });
+      return buttonList;
+    }
   }
 
   // useEffect basically says if the secondParam cahnges, execute the firstParam
@@ -66,17 +64,19 @@ function DeployedContracts(props) {
     setFactoryContractListener();
   }, [props]);
 
-  useEffect(() => {
-    displayContracts();
-  }, [createdContracts]);
-
   return (
     <div>
-      <div id="deployed_contracts" className="container">
-        <h4>Your Contracts</h4>
-        <div id="deployed_contracts_list" className="collection"></div>
-      </div>
-      <CurrentContractModal currentContract={selectedContract} />
+      <Container id="deployed_contracts">
+        <h2>Contracts You Created</h2>
+        <ButtonGroup
+          variant="contained"
+          aria-label="outlined primary button group"
+          id="deployed_contracts_list"
+        >
+          {displayContracts()}
+        </ButtonGroup>
+      </Container>
+      <CurrentContractModal currentContractAddress={selectedContract} />
     </div>
   );
 }

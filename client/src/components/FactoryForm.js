@@ -1,4 +1,6 @@
 import { ethers } from "ethers";
+import { Box } from "@mui/system";
+import { TextField, Button, Container } from "@mui/material";
 
 function FactoryForm(props) {
   const contract = props.contract;
@@ -49,45 +51,42 @@ function FactoryForm(props) {
     }
   };
   return (
-    <div className="container row">
-      <h4>Create New Contract</h4>
-      <form onSubmit={deployContract}>
-        <div>
-          <div>
-            <input
-              type="text"
-              id="description"
-              placeholder="TeamName"
-              defaultValue="jezer0x"
-            />
-            <label htmlFor="description">Title</label>
-          </div>
-          <div>
-            <input
-              type="text"
-              id="addresses"
-              placeholder="0x1, 0x2, 0x3"
-              defaultValue="0x32927Ad8d0D5d6E4039CC23715FF83edBD04DFd0, 0xD39EaA072A272aBdBa849Bef6582BBFC3819b03d" //remove
-            />
-            <label htmlFor="addresses">Addresses</label>
-          </div>
-          <div>
-            <input
-              type="text"
-              id="shares"
-              placeholder="25, 25, 50"
-              defaultValue="10, 10" //remove
-            />
-            <label htmlFor="shares">Shares</label>
-          </div>
-          <input
-            type="submit"
-            value="Create"
-            className="waves-effect waves-light btn"
-          />
-        </div>
-      </form>
-    </div>
+    <Container>
+      <h2>Create New Contract</h2>
+      <Box component="form" noValidate onSubmit={deployContract}>
+        <TextField
+          type="text"
+          id="description"
+          placeholder="TeamName"
+          defaultValue="jezer0x"
+          variant="standard"
+          label="Title"
+        />
+        <TextField
+          type="text"
+          id="addresses"
+          placeholder="0x1, 0x2, 0x3"
+          defaultValue="0x32927Ad8d0D5d6E4039CC23715FF83edBD04DFd0, 0xD39EaA072A272aBdBa849Bef6582BBFC3819b03d" //remove
+          variant="standard"
+          label="Addresses"
+          margin="normal"
+          fullWidth
+        />
+        <TextField
+          type="text"
+          id="shares"
+          placeholder="25, 25, 50"
+          defaultValue="10, 10" //remove
+          variant="standard"
+          label="Shares"
+          margin="normal"
+          fullWidth
+        />
+        <Button variant="contained" color="primary" type="submit">
+          Create
+        </Button>
+      </Box>
+    </Container>
   );
 }
 

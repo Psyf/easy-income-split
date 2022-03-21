@@ -3,6 +3,7 @@ import FactoryForm from "./FactoryForm";
 import DeployedContracts from "./DeployedContracts";
 import { useState, useEffect } from "react";
 import { getFactoryContract } from "../utils/factoryContract";
+import { Typography } from "@mui/material";
 
 function App() {
   const [factoryContract, setFactoryContract] = useState(null);
@@ -24,21 +25,17 @@ function App() {
   }, [walletAddress]);
 
   return (
-    <div>
-      <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
-      ></link>
-      <header>
-        <h2 className="center">IncomeSplitter</h2>
-        <Wallet wallet={walletAddress} setWalletCallback={setWallet} />
-        <DeployedContracts
-          factoryContract={factoryContract}
-          walletAddress={walletAddress}
-        />
-        <FactoryForm contract={factoryContract} />
-      </header>
-    </div>
+    <header>
+      <Typography component="span">
+        <h1 align="center">IncomeSplitter</h1>
+      </Typography>
+      <Wallet wallet={walletAddress} setWalletCallback={setWallet} />
+      <DeployedContracts
+        factoryContract={factoryContract}
+        walletAddress={walletAddress}
+      />
+      <FactoryForm contract={factoryContract} />
+    </header>
   );
 }
 export default App;

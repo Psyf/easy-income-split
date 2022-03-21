@@ -1,5 +1,6 @@
 import { connectWallet, getCurrentWalletConnected } from "../utils/wallet";
 import { useEffect } from "react";
+import Button from "@mui/material/Button";
 
 function Wallet(props) {
   const walletAddress = props.wallet;
@@ -30,11 +31,10 @@ function Wallet(props) {
   }, []);
 
   return (
-    <div className="btn-wrapper right">
-      <button
+    <div align="right">
+      <Button
         id="connect_wallet_button"
-        type="button"
-        className="waves-effect waves-light btn"
+        variant="contained"
         onClick={connectWalletHandler}
       >
         {walletAddress ? (
@@ -44,7 +44,7 @@ function Wallet(props) {
         ) : (
           <span>Connect Wallet</span>
         )}
-      </button>
+      </Button>
     </div>
   );
 }
