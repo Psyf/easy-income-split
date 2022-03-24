@@ -33,9 +33,27 @@ function CurrentContractModal(props) {
   const [walletAddress, setWalletAddress] = useState(null);
   const [title, setTitle] = useState(null);
   const [owner, setOwner] = useState(null);
-  const [payees, setPayees] = useState([]);
-  const [shares, setShares] = useState([]);
-  const [rows, setRows] = useState([]);
+
+  const [payeesAndShares, setPayeesAndShares] = useState(new Map());
+  const [displayRows, setdisplayRows] = useState([]);
+  const [initRowsFetched, setInitRowsFetched] = useState(false);
+
+  // Maybe Buggy listeners because they race
+  function setListeners() {
+    if (currentContract) {
+      currentContract.on("PayeeAdded", (addr, share_, e) => {
+        var newMap = new Map(payeesAndShares);
+        newMap.set(addr, share_);
+        setPayeesAndShares(newMap);
+      });
+
+      currentContract.on("PayeeDeleted", (addr, e) => {
+        var newMap = new Map(payeesAndShares);
+        newMap.delete(addr);
+        setPayeesAndShares(newMap);
+      });
+    }
+  }
 
   async function attachToContract() {
     if (currentContractAddress) {
@@ -58,9 +76,7 @@ function CurrentContractModal(props) {
   }
 
   function checkPayeePresent(address) {
-    if (
-      payees.map((item) => item.toLowerCase()).includes(address.toLowerCase())
-    ) {
+    if (payeesAndShares.get(address)) {
       return true;
     } else {
       alert("Address not one of the payees!");
@@ -142,41 +158,39 @@ function CurrentContractModal(props) {
     }
   }
 
-  async function updatePayees() {
-    var payee_arr = [];
+  async function updatePayeesAndShares() {
+    var newMap = new Map();
     if (currentContract) {
       var n = await currentContract.numCurrentPayees();
       for (var i = 0; i < n; i++) {
         var payee = await currentContract.payee(i);
-        payee_arr.push(payee);
+        var share = await currentContract.shares(payee);
+        newMap.set(payee, share);
       }
-      setPayees(payee_arr);
-    } else {
-      setPayees([]);
     }
+
+    setPayeesAndShares(newMap);
+    setInitRowsFetched(newMap.size > 0);
   }
 
-  async function updateShares() {
-    var share_arr = [];
-    for (var i = 0; i < payees.length; i++) {
-      var share = await currentContract.shares(payees[i]);
-      share_arr.push(share);
-    }
-    setShares(share_arr);
+  async function setupInitialState() {
+    await updateTitle();
+    await updateOwner();
+    await updatePayeesAndShares();
   }
 
-  async function updateRowsForDisplay() {
+  async function updatedisplayRowsForDisplay() {
     var res = [];
-    if (currentContract && payees.length && shares.length) {
-      for (var i = 0; i < payees.length; i++) {
+    if (payeesAndShares.size > 0) {
+      for (var [k, v] of payeesAndShares.entries()) {
         res.push({
-          id: i,
-          address: payees[i],
-          shares: shares[i],
+          id: k,
+          address: k,
+          shares: v,
         });
       }
     }
-    setRows(res);
+    setdisplayRows(res);
   }
 
   useEffect(() => {
@@ -189,18 +203,17 @@ function CurrentContractModal(props) {
   }, [currentContractAddress]);
 
   useEffect(async () => {
-    await updateTitle();
-    await updateOwner();
-    await updatePayees();
+    await setupInitialState();
   }, [currentContract]);
 
   useEffect(async () => {
-    await updateShares();
-  }, [payees]);
+    await updatedisplayRowsForDisplay();
+  }, [payeesAndShares]);
 
-  useEffect(async () => {
-    await updateRowsForDisplay();
-  }, [shares]);
+  // Forcing a wait until all the initial rows are set
+  useEffect(() => {
+    setListeners();
+  }, [initRowsFetched, currentContract]);
 
   return (
     //broken css for some reason
@@ -212,13 +225,13 @@ function CurrentContractModal(props) {
         >
           <CloseIcon />
         </IconButton>
-        <h2 id="contract_name">{title}</h2>
+        <h2>{title + " / " + currentContractAddress}</h2>
         <h3>Current Owner</h3>
         <p id="owner">{owner}</p>
         <Box sx={{ height: 400, bgcolor: "background.paper" }}>
           <DataGrid
             hideFooter
-            rows={rows}
+            rows={displayRows}
             columns={[
               { field: "address", width: 400 },
               { field: "shares", width: 200 },
