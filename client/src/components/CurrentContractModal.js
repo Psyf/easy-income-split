@@ -5,12 +5,13 @@ import { Box } from "@mui/system";
 import { IconButton, Button, TextField } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { DataGrid } from "@mui/x-data-grid";
+import { ethers } from "ethers";
 
 //TODO: Take them to a separate stylesheet file
 const customButton = {
   position: "absolute",
-  left: "95%",
-  top: "-9%",
+  left: "100%",
+  top: "-5%",
   backgroundColor: "lightgray",
   color: "gray",
 };
@@ -38,6 +39,7 @@ function CurrentContractModal(props) {
   const [payeesToPending, setPayeesToPending] = useState(new Map());
   const [displayRows, setdisplayRows] = useState([]);
   const [initRowsFetched, setInitRowsFetched] = useState(false);
+  const [token, setToken] = useState(null);
 
   // Maybe Buggy listeners because they race
   function setListeners() {
@@ -118,8 +120,6 @@ function CurrentContractModal(props) {
     var address = event.target.address ? event.target.address.value : null;
     if (checkPayeePresent(address)) {
       event.preventDefault();
-      var token =
-        event.target.token.length > 0 ? event.target.token.value : null;
       if (token != null)
         await currentContract["release(address,address)"](token, address);
       else await currentContract["release(address)"](address);
@@ -128,7 +128,6 @@ function CurrentContractModal(props) {
 
   async function releaseAll(event) {
     event.preventDefault();
-    var token = event.target.token.length > 0 ? event.target.token.value : null;
     if (token != null) {
       await currentContract["releaseAll(address)"](token);
     } else {
@@ -190,20 +189,41 @@ function CurrentContractModal(props) {
           id: k,
           address: k,
           shares: v,
-          pendingPayment: payeesToPending.get(k),
+          pendingPayment: ethers.utils.formatEther(payeesToPending.get(k)),
         });
       }
     }
     setdisplayRows(res);
   }
 
+  function setSelectedToken(event) {
+    if (event.key === "Enter") {
+      if (event.target.value.length > 0) {
+        if (ethers.utils.getAddress(event.target.value)) {
+          setToken(event.target.value);
+        } else {
+          alert("invalid token address!");
+        }
+      } else {
+        setToken(null);
+      }
+    }
+  }
+
   async function getPending() {
     var newMap = new Map();
-    console.log("getpending shares", payeesAndShares);
-    console.log("getpending contract", currentContract);
     if (currentContract) {
       for (var [addr, v] of payeesAndShares.entries()) {
-        var pending = await currentContract["pendingPayment(address)"](addr);
+        var pending;
+        if (token == null) {
+          pending = await currentContract["pendingPayment(address)"](addr);
+        } else {
+          pending = await currentContract["pendingPayment(address,address)"](
+            token,
+            addr
+          );
+        }
+
         newMap.set(addr, pending);
       }
     }
@@ -225,7 +245,7 @@ function CurrentContractModal(props) {
 
   useEffect(async () => {
     await getPending();
-  }, [payeesAndShares]);
+  }, [payeesAndShares, token]);
 
   useEffect(async () => {
     await updatedisplayRowsForDisplay();
@@ -249,6 +269,15 @@ function CurrentContractModal(props) {
         <h2>{title + " / " + currentContractAddress}</h2>
         <h3>Current Owner</h3>
         <p id="owner">{owner}</p>
+        <TextField
+          type="text"
+          id="token"
+          placeholder="ETH"
+          variant="standard"
+          helperText="Enter token address and press Enter"
+          label="token"
+          onKeyPress={setSelectedToken}
+        />
         <Box sx={{ height: 400, bgcolor: "background.paper" }}>
           <DataGrid
             hideFooter
@@ -323,25 +352,11 @@ function CurrentContractModal(props) {
             variant="standard"
             label="address"
           />
-          <TextField
-            type="text"
-            id="token"
-            placeholder="0x..."
-            variant="standard"
-            label="token"
-          />
           <Button variant="contained" color="primary" type="submit">
             Release
           </Button>
         </Box>
         <Box component="form" noValidate onSubmit={releaseAll}>
-          <TextField
-            type="text"
-            id="token"
-            placeholder="0x..."
-            variant="standard"
-            label="token"
-          />
           <Button variant="contained" color="primary" type="submit">
             ReleaseAll
           </Button>

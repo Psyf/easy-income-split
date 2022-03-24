@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "reactjs-popup/dist/index.css";
 import CurrentContractModal from "./CurrentContractModal";
-import { ButtonGroup, Button, Container } from "@mui/material";
+import { ButtonGroup, Button, Container, TextField } from "@mui/material";
+import { Box } from "@mui/system";
 
 // TODO: This seems to be very inefficient
 function DeployedContracts(props) {
@@ -38,6 +39,11 @@ function DeployedContracts(props) {
     }
   }
 
+  function selectContract(event) {
+    event.preventDefault();
+    setSelectedContract(event.target.address.value);
+  }
+
   function getContractsToDisplay() {
     if (createdContracts) {
       var buttonList = [];
@@ -62,6 +68,7 @@ function DeployedContracts(props) {
   useEffect(async () => {
     await getContractsCreatedByWallet();
     setFactoryContractListener();
+    setSelectedContract(null);
   }, [props]);
 
   return (
@@ -75,6 +82,23 @@ function DeployedContracts(props) {
         >
           {getContractsToDisplay()}
         </ButtonGroup>
+      </Container>
+      <Container>
+        <Box component="form" noValidate onSubmit={selectContract}>
+          <TextField
+            type="text"
+            id="address"
+            placeholder="0x1234"
+            variant="standard"
+            label="Address of FlexiblePaymentSplitter Contract instead"
+            helperText="If the address does not point to a proper contract, site will spin out"
+            margin="normal"
+            fullWidth
+          />
+          <Button variant="contained" color="primary" type="submit">
+            Select
+          </Button>
+        </Box>
       </Container>
       <CurrentContractModal
         currentContractAddress={selectedContract}
