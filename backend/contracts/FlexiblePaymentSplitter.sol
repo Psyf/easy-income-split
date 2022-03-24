@@ -150,6 +150,22 @@ contract FlexiblePaymentSplitter is Context, Ownable {
         return _totalShares;
     }
 
+    function pendingPayment(address account) public view returns (uint256) {
+        return _pendingPayment(
+            account,
+            totalReceived,
+            released(account)
+        );
+    }
+
+    function pendingPayment(IERC20 token, address account) public view returns (uint256) {
+        return _pendingPayment(
+            account,
+            totalReceived,
+            released(token, account)
+        );
+    }
+
     function isEthPaymentBlocked() public view returns (bool) {
         return _ethPaymentsBlocked;
     }
