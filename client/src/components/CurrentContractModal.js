@@ -35,6 +35,7 @@ function CurrentContractModal(props) {
   const [owner, setOwner] = useState(null);
 
   const [payeesAndShares, setPayeesAndShares] = useState(new Map());
+  const [payeesToPending, setPayeesToPending] = useState(new Map());
   const [displayRows, setdisplayRows] = useState([]);
   const [initRowsFetched, setInitRowsFetched] = useState(false);
 
@@ -52,6 +53,8 @@ function CurrentContractModal(props) {
         newMap.delete(addr);
         setPayeesAndShares(newMap);
       });
+
+      // TODO: would be nice to handle PaymentReceived, (ERC20)PaymentReleased
     }
   }
 
@@ -181,16 +184,30 @@ function CurrentContractModal(props) {
 
   async function updatedisplayRowsForDisplay() {
     var res = [];
-    if (payeesAndShares.size > 0) {
+    if (payeesAndShares.size > 0 && payeesToPending.size > 0) {
       for (var [k, v] of payeesAndShares.entries()) {
         res.push({
           id: k,
           address: k,
           shares: v,
+          pendingPayment: payeesToPending.get(k),
         });
       }
     }
     setdisplayRows(res);
+  }
+
+  async function getPending() {
+    var newMap = new Map();
+    console.log("getpending shares", payeesAndShares);
+    console.log("getpending contract", currentContract);
+    if (currentContract) {
+      for (var [addr, v] of payeesAndShares.entries()) {
+        var pending = await currentContract["pendingPayment(address)"](addr);
+        newMap.set(addr, pending);
+      }
+    }
+    setPayeesToPending(newMap);
   }
 
   useEffect(() => {
@@ -207,8 +224,12 @@ function CurrentContractModal(props) {
   }, [currentContract]);
 
   useEffect(async () => {
-    await updatedisplayRowsForDisplay();
+    await getPending();
   }, [payeesAndShares]);
+
+  useEffect(async () => {
+    await updatedisplayRowsForDisplay();
+  }, [payeesToPending]);
 
   // Forcing a wait until all the initial rows are set
   useEffect(() => {
@@ -235,6 +256,7 @@ function CurrentContractModal(props) {
             columns={[
               { field: "address", width: 400 },
               { field: "shares", width: 200 },
+              { field: "pendingPayment", width: 200 },
             ]}
           />
         </Box>
