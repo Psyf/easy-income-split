@@ -393,6 +393,24 @@ export const abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "shares_",
+        type: "uint256",
+      },
+    ],
+    name: "addPayee",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "contract IERC20",
         name: "token",
         type: "address",
