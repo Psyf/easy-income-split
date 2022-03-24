@@ -151,6 +151,7 @@ contract FlexiblePaymentSplitter is Context, Ownable {
     }
 
     function pendingPayment(address account) public view returns (uint256) {
+        uint256 totalReceived = address(this).balance + totalReleased();
         return _pendingPayment(
             account,
             totalReceived,
@@ -159,6 +160,8 @@ contract FlexiblePaymentSplitter is Context, Ownable {
     }
 
     function pendingPayment(IERC20 token, address account) public view returns (uint256) {
+        uint256 totalReceived = token.balanceOf(address(this)) +
+            totalReleased(token);
         return _pendingPayment(
             account,
             totalReceived,
