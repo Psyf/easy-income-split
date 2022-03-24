@@ -150,6 +150,10 @@ contract FlexiblePaymentSplitter is Context, Ownable {
         return _totalShares;
     }
 
+    function isEthPaymentBlocked() public view returns (bool) {
+        return _ethPaymentsBlocked;
+    }
+
     /**
      * @dev Getter for the total amount of Ether already released.
      */
